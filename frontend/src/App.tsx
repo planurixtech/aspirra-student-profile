@@ -3352,228 +3352,65 @@ export default function App() {
 
             </div>
 
-          {/* VIEW: NOTES COMPILED PRINT ROOM */}
-          <div className={`flex-1 p-4.5 space-y-4 animate-fade-in transition-all ${activeTab === "Print" ? "" : "hidden"}`}>
-              {/* Header */}
-              <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
-                <Printer className="w-5 h-5 text-[#0a8d65]" />
-                <div>
-                  <h2 className="font-extrabold text-[15px] text-slate-800 leading-none">Printable Materials Card</h2>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">Study Material PDF Engine</span>
-                </div>
+          {/* VIEW: PRINT — COMING SOON */}
+          <div className={`flex-1 animate-fade-in transition-all ${activeTab === “Print” ? “” : “hidden”}`}>
+            <div className=”flex flex-col items-center justify-center h-full min-h-[500px] px-8 py-12 gap-6 text-center”>
+              <div className=”w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#01b6eb] to-[#01abff] flex items-center justify-center shadow-xl”>
+                <Printer className=”w-9 h-9 text-white stroke-[2]” />
               </div>
-
-              <p className="text-slate-500 text-xs font-semibold leading-relaxed">
-                Compile reference books and dynamic hand-written notes directly into customized Printable Study Deck cards.
-              </p>
-
-              {/* Reference selections */}
-              <div className="bg-white rounded-xl p-3.5 shadow-md border border-slate-100 space-y-3">
-                <h3 className="font-extrabold text-xs text-slate-850">Select PDF Chapters</h3>
-                
-                <div className="space-y-2">
-                  {PRINTABLE_MATERIALS.map((pm) => {
-                    const isSelected = selectedPrintIds.includes(pm.id);
-                    return (
-                      <div 
-                        key={pm.id}
-                        onClick={() => {
-                          setSelectedPrintIds(prev => 
-                            isSelected ? prev.filter(x => x !== pm.id) : [...prev, pm.id]
-                          );
-                        }}
-                        className={`flex items-center justify-between p-2 rounded-lg border cursor-pointer select-none transition ${
-                          isSelected ? 'bg-emerald-50/50 border-emerald-300' : 'bg-slate-50/50 border-slate-150'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className={`w-4 h-4 rounded flex items-center justify-center border shrink-0 ${
-                            isSelected ? 'bg-[#0ec38c] border-[#0ea174] text-white' : 'bg-white border-slate-350'
-                          }`}>
-                            {isSelected && <span className="text-[9px] font-black">✓</span>}
-                          </div>
-                          <span className="text-[11px] font-extrabold text-slate-700 truncate leading-none mt-0.5">
-                            {pm.name}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-[#0a8d65] font-extrabold shrink-0">{pm.pages} Pages</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Additional brief thoughts input */}
-                <div className="space-y-1">
-                  <label className="text-[10px] text-slate-500 uppercase font-black">Append custom Study Notes</label>
-                  <textarea
-                    value={customNotesText}
-                    onChange={(e) => {
-                      setCustomNotesText(e.target.value);
-                      setIsNotesCompiled(false);
-                    }}
-                    placeholder="Type customized study logs, important dates, or specific target units to append (e.g., 'Learn Gupta Coinage on 29th May')..."
-                    className="w-full text-xs p-2 bg-slate-50 border border-slate-200 rounded-lg min-h-[50px] placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-bold"
-                  />
-                </div>
-
-                <button
-                  onClick={() => setIsNotesCompiled(true)}
-                  className="w-full py-2.5 bg-gradient-to-r from-[#01b6eb] to-[#01abff] text-white rounded-lg font-extrabold text-xs uppercase tracking-wide cursor-pointer shadow active:scale-95 transition-transform"
-                >
-                  Compile & Print Study Deck Card
-                </button>
-              </div>
-
-              {/* Dynamic generated card frame output */}
-              {isNotesCompiled && (
-                <div className="bg-[#125652] text-white border-2 border-emerald-400 rounded-2xl p-4 shadow-xl space-y-3 relative select-all animate-bounce-short">
-                  <div className="absolute top-2.5 right-3 px-1.5 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[8px] tracking-widest uppercase">
-                    Compiled OK
-                  </div>
-                  <h4 className="font-extrabold text-xs text-[#95efde] uppercase tracking-wider">Aspirra Print Card PDF</h4>
-                  
-                  <div className="space-y-1 border-t border-white/10 pt-2 text-[11px]">
-                    <p className="font-bold">
-                      <span className="text-emerald-300">Exam Stage:</span> {profile.group} 2026 Focus Material
-                    </p>
-                    <p className="font-bold">
-                      <span className="text-emerald-300">Chapters Included:</span> {selectedPrintIds.map(id => PRINTABLE_MATERIALS.find(x => x.id === id)?.name.replace(' Consolidated PDF', '')).join(', ') || 'None selected'}
-                    </p>
-                    <p className="font-bold">
-                      <span className="text-emerald-300">Total Print Size:</span> {selectedPrintIds.reduce((sum, id) => sum + (PRINTABLE_MATERIALS.find(x => x.id === id)?.pages || 0), 0)} Pages
-                    </p>
-                    {customNotesText.trim() && (
-                      <p className="font-medium bg-slate-950/20 p-2 rounded-lg border border-white/5 italic text-teal-100 max-h-[80px] overflow-y-auto mt-1 text-[10px]">
-                        “ {customNotesText.trim()} ”
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-3 bg-white/10 rounded-lg p-2.5 leading-none">
-                    {/* Fake QR visual representing security validation code */}
-                    <div className="w-10 h-10 bg-white rounded border border-slate-200 shrink-0 flex flex-wrap p-0.5 pointer-events-none select-none my-auto">
-                      <div className="w-4 h-4 bg-slate-900 rounded-sm m-0.5" />
-                      <div className="w-2 h-2 bg-slate-950 m-0.5" />
-                      <div className="w-2 h-2 bg-slate-950 m-0.5" />
-                      <div className="w-4 h-4 bg-slate-900 rounded-sm m-0.5" />
-                    </div>
-                    <div>
-                      <p className="font-black text-[10.5px] text-emerald-300 uppercase leading-none">RFID Code: AP-2026-FOC</p>
-                      <span className="text-[9px] text-[#95efde] block mt-1 leading-snug">Authorized study guide compilation. Ready for local printer queue.</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-          {/* VIEW: STUDY BRAIN FOOD SNACKS & WATER DIET LOGGING */}
-          <div className={`flex-1 p-4.5 space-y-4 animate-fade-in transition-all ${activeTab === "Food" ? "" : "hidden"}`}>
-              {/* Header */}
-              <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3">
-                <Apple className="w-5 h-5 text-amber-500 fill-amber-500" />
-                <div>
-                  <h2 className="font-extrabold text-[15px] text-slate-800 leading-none">Study Fuel Planner</h2>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">Brain Nutrition & Hydration Tracker</span>
-                </div>
-              </div>
-
-              {/* Water logging widget */}
-              <div className="bg-white rounded-xl p-3.5 shadow-md border border-slate-100 space-y-3.5 relative">
-                <h3 className="font-extrabold text-[12.5px] text-slate-800 leading-none flex items-center justify-between">
-                  <span>Daily Hydration Target</span>
-                  <span className="text-[10.5px] text-blue-500 font-extrabold">{waterGlasses * 250}ml / 2000ml</span>
-                </h3>
-
-                {/* Animated graphic cup filler */}
-                <div className="flex items-center gap-4 py-1.5 justify-center">
-                  <div className="relative w-11 h-14 bg-slate-100 rounded-bl-lg rounded-br-lg border-2 border-slate-300 overflow-hidden shrink-0 flex flex-col justify-end">
-                    {/* Water filled level */}
-                    <div 
-                      className="bg-sky-400/80 transition-all duration-500 border-t border-sky-500"
-                      style={{ height: `${Math.min((waterGlasses / 8) * 100, 100)}%` }}
-                    />
-                    {/* Level percentage text */}
-                    <div className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-slate-600 select-none">
-                      {Math.round((waterGlasses / 8) * 100)}%
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 flex-1">
-                    <p className="text-[11px] font-bold text-slate-600 leading-snug">
-                      Studies indicate drinking water prevents brain fatigue and improves memory recall. Drink a glass of water every hour!
-                    </p>
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        onClick={() => {
-                          if (waterGlasses < 12) setWaterGlasses(prev => prev + 1);
-                        }}
-                        className="py-1 px-3 bg-sky-500 text-white rounded text-[10.5px] font-extrabold active:scale-95 cursor-pointer hover:bg-sky-600"
-                      >
-                        + 1 glass (250ml)
-                      </button>
-                      {waterGlasses > 0 && (
-                        <button
-                          onClick={() => setWaterGlasses(prev => prev - 1)}
-                          className="py-1 px-2 text-rose-500 border border-rose-250 rounded text-[10px] font-bold active:scale-95 cursor-pointer"
-                        >
-                          Reset
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Foods calories booster logging */}
-              <div className="bg-white rounded-xl p-3.5 shadow-md border border-slate-100 space-y-3">
-                <h3 className="font-extrabold text-[12.5px] text-slate-800 leading-none">Study Snacks Calories: {foodCalories} kcal</h3>
-                
-                <p className="text-slate-500 text-[10.5px] font-bold tracking-tight">
-                  Log smart vitamins & calories to avoid post-study glucose crashes. Ideal snacks: almonds, berries, milk, walnuts.
+              <div className=”flex flex-col gap-2”>
+                <span className=”text-[11px] font-black uppercase tracking-[0.2em] text-[#01abff]”>Coming Soon</span>
+                <h2 className=”text-[22px] font-extrabold text-slate-800 leading-tight”>Print Module</h2>
+                <p className=”text-slate-500 text-[13px] font-semibold leading-relaxed max-w-[260px]”>
+                  Compile and print your study notes as PDF cards. This feature is under development.
                 </p>
-
-                {/* Logged smart items */}
-                <div className="space-y-1.5">
-                  {snacksList.map((sn, i) => (
-                    <div key={i} className="flex items-center justify-between bg-slate-50 border border-slate-150 p-2 rounded-lg text-[10px] font-bold text-slate-700">
-                      <span>{sn}</span>
-                      <button 
-                        onClick={() => {
-                          setSnacksList(prev => prev.filter((_, idx) => idx !== i));
-                          setFoodCalories(prev => Math.max(prev - 150, 0));
-                        }}
-                        className="text-rose-500 font-extrabold hover:underline"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
+              </div>
+              <div className=”w-full max-w-[260px] bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-2”>
+                <div className=”flex items-center gap-2.5”>
+                  <div className=”w-2 h-2 rounded-full bg-[#01abff]” />
+                  <span className=”text-[12px] font-bold text-slate-600”>PDF chapter compilation</span>
                 </div>
-
-                {/* Append food item box */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={tempSnack}
-                    onChange={(e) => setTempSnack(e.target.value)}
-                    placeholder="Log cognitive booster (e.g. Dark Chocolate)..."
-                    className="flex-1 bg-white border border-slate-200 rounded-lg py-1 px-2.5 text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-bold"
-                  />
-                  <button
-                    onClick={() => {
-                      if (tempSnack.trim()) {
-                        setSnacksList(prev => [...prev, tempSnack.trim()]);
-                        setFoodCalories(prev => prev + 150);
-                        setTempSnack("");
-                      }
-                    }}
-                    className="px-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-black text-xs cursor-pointer active:scale-95 flex items-center justify-center shrink-0"
-                  >
-                    Log
-                  </button>
+                <div className=”flex items-center gap-2.5”>
+                  <div className=”w-2 h-2 rounded-full bg-slate-200” />
+                  <span className=”text-[12px] font-bold text-slate-400”>Custom notes builder</span>
+                </div>
+                <div className=”flex items-center gap-2.5”>
+                  <div className=”w-2 h-2 rounded-full bg-slate-200” />
+                  <span className=”text-[12px] font-bold text-slate-400”>One-tap printer queue</span>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* VIEW: FOOD — COMING SOON */}
+          <div className={`flex-1 animate-fade-in transition-all ${activeTab === "Food" ? "" : "hidden"}`}>
+            <div className="flex flex-col items-center justify-center h-full min-h-[500px] px-8 py-12 gap-6 text-center">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#fea500] to-[#ff7000] flex items-center justify-center shadow-xl">
+                <Coffee className="w-9 h-9 text-white stroke-[2]" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#fea500]">Coming Soon</span>
+                <h2 className="text-[22px] font-extrabold text-slate-800 leading-tight">Food Module</h2>
+                <p className="text-slate-500 text-[13px] font-semibold leading-relaxed max-w-[260px]">
+                  Track hydration and brain nutrition to stay sharp during long study sessions.
+                </p>
+              </div>
+              <div className="w-full max-w-[260px] bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-[#fea500]" />
+                  <span className="text-[12px] font-bold text-slate-600">Daily hydration tracker</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-slate-200" />
+                  <span className="text-[12px] font-bold text-slate-400">Study snack calorie log</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-slate-200" />
+                  <span className="text-[12px] font-bold text-slate-400">Brain food recommendations</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>
 
