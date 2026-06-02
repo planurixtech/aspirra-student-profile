@@ -7,8 +7,10 @@
     "dev:backend": "dotnet watch --project backend/src/Aspirra.Api",
     "dev:frontend": "vite frontend",
     "dev": "vite frontend",
+    "build": "vite build frontend --outDir dist --emptyOutDir",
     "build:frontend": "vite build frontend --outDir dist --emptyOutDir",
     "build:backend": "dotnet publish backend/src/Aspirra.Api -c Release -o dist/publish",
+    "start": "node --import tsx/esm backend/server.ts",
     "lint": "tsc --project frontend/tsconfig.json --noEmit"
   },
   "dependencies": {
