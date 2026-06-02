@@ -3353,30 +3353,30 @@ export default function App() {
             </div>
 
           {/* VIEW: PRINT — COMING SOON */}
-          <div className={`flex-1 animate-fade-in transition-all ${activeTab === “Print” ? “” : “hidden”}`}>
-            <div className=”flex flex-col items-center justify-center h-full min-h-[500px] px-8 py-12 gap-6 text-center”>
-              <div className=”w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#01b6eb] to-[#01abff] flex items-center justify-center shadow-xl”>
-                <Printer className=”w-9 h-9 text-white stroke-[2]” />
+          <div className={`flex-1 animate-fade-in transition-all ${activeTab === "Print" ? "" : "hidden"}`}>
+            <div className="flex flex-col items-center justify-center h-full min-h-[500px] px-8 py-12 gap-6 text-center">
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-tr from-[#01b6eb] to-[#01abff] flex items-center justify-center shadow-xl">
+                <Printer className="w-9 h-9 text-white stroke-[2]" />
               </div>
-              <div className=”flex flex-col gap-2”>
-                <span className=”text-[11px] font-black uppercase tracking-[0.2em] text-[#01abff]”>Coming Soon</span>
-                <h2 className=”text-[22px] font-extrabold text-slate-800 leading-tight”>Print Module</h2>
-                <p className=”text-slate-500 text-[13px] font-semibold leading-relaxed max-w-[260px]”>
+              <div className="flex flex-col gap-2">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#01abff]">Coming Soon</span>
+                <h2 className="text-[22px] font-extrabold text-slate-800 leading-tight">Print Module</h2>
+                <p className="text-slate-500 text-[13px] font-semibold leading-relaxed max-w-[260px]">
                   Compile and print your study notes as PDF cards. This feature is under development.
                 </p>
               </div>
-              <div className=”w-full max-w-[260px] bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-2”>
-                <div className=”flex items-center gap-2.5”>
-                  <div className=”w-2 h-2 rounded-full bg-[#01abff]” />
-                  <span className=”text-[12px] font-bold text-slate-600”>PDF chapter compilation</span>
+              <div className="w-full max-w-[260px] bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-[#01abff]" />
+                  <span className="text-[12px] font-bold text-slate-600">PDF chapter compilation</span>
                 </div>
-                <div className=”flex items-center gap-2.5”>
-                  <div className=”w-2 h-2 rounded-full bg-slate-200” />
-                  <span className=”text-[12px] font-bold text-slate-400”>Custom notes builder</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-slate-200" />
+                  <span className="text-[12px] font-bold text-slate-400">Custom notes builder</span>
                 </div>
-                <div className=”flex items-center gap-2.5”>
-                  <div className=”w-2 h-2 rounded-full bg-slate-200” />
-                  <span className=”text-[12px] font-bold text-slate-400”>One-tap printer queue</span>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-slate-200" />
+                  <span className="text-[12px] font-bold text-slate-400">One-tap printer queue</span>
                 </div>
               </div>
             </div>
