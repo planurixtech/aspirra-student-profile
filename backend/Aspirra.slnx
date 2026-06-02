@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Aspirra.Api/Aspirra.Api.csproj" />
+    <Project Path="src/Aspirra.Application/Aspirra.Application.csproj" />
+    <Project Path="src/Aspirra.Domain/Aspirra.Domain.csproj" />
+    <Project Path="src/Aspirra.Infrastructure/Aspirra.Infrastructure.csproj" />
+  </Folder>
+</Solution>

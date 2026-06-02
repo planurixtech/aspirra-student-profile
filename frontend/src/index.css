@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;850&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-aspirra-teal: #0d5554;
+  --color-aspirra-teal-dark: #093c3b;
+  --color-aspirra-teal-light: #167e7c;
+  --color-aspirra-gold-from: #feeebb;
+  --color-aspirra-gold-to: #fef6d8;
+  --color-aspirra-green: #22c55e;
+  --color-aspirra-bg: #eaf1f9;
+}
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(13, 85, 84, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(13, 85, 84, 0.4);
+}
+
+/* Animations and responsive touch helper classes */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+}
+
+.avatar-online-pulse {
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes strikeout {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.topic-completing {
+  animation: strikeout 0.55s ease-out forwards;
+}

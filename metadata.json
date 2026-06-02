@@ -1,0 +1,6 @@
+{
+  "name": "Aspirra Student Profile",
+  "description": "An interactive mobile study suite for Aspirra Focus Study, complete with editable profiles, daily study goals, ambient focus timers, and syllabus timelines.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

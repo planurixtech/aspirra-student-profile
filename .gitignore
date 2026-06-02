@@ -1,0 +1,26 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+
+# .NET
+backend/src/*/bin/
+backend/src/*/obj/
+
+# Android
+android/app/build/
+android/.gradle/
+
+# Runtime database files
+backend/study-db.json
+*.db
+*.db-shm
+*.db-wal
