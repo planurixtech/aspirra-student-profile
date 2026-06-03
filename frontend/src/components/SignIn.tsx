@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock, CheckCircle } from 'lucide-react';
-import { apiFetch } from '../api';
+
+const USERS_KEY = 'aspirra_users';
+
+function getUsers(): Array<{ id: string; fullName: string; email: string; password: string }> {
+  try { const s = localStorage.getItem(USERS_KEY); return s ? JSON.parse(s) : []; }
+  catch { return []; }
+}
+
+function saveUsers(users: ReturnType<typeof getUsers>) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
 
 interface Props {
   onAuthSuccess?: () => void;
@@ -23,59 +33,38 @@ export default function SignIn({ onAuthSuccess }: Props) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    try {
-      const res = await apiFetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || 'Invalid email or password.');
-        return;
-      }
-      localStorage.setItem('authToken', data.accessToken);
-      localStorage.setItem('authUser', JSON.stringify(data.user));
-      onAuthSuccess?.();
-    } catch {
-      setError('Network error. Check your connection.');
-    } finally {
+    const users = getUsers();
+    const user = users.find(u => u.email === loginEmail && u.password === loginPassword);
+    if (!user) {
+      setError('Invalid email or password.');
       setLoading(false);
+      return;
     }
+    localStorage.setItem('authUser', JSON.stringify({ fullName: user.fullName, email: user.email }));
+    setLoading(false);
+    onAuthSuccess?.();
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    try {
-      const res = await apiFetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: signupName,
-          email: signupEmail,
-          password: signupPassword,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || 'Registration failed.');
-        return;
-      }
-      localStorage.setItem('authToken', data.accessToken);
-      localStorage.setItem('authUser', JSON.stringify(data.user));
-      setSuccess(`Welcome, ${data.user.fullName}!`);
-      setTimeout(() => onAuthSuccess?.(), 900);
-    } catch {
-      setError('Network error. Check your connection.');
-    } finally {
+    const users = getUsers();
+    if (users.find(u => u.email === signupEmail)) {
+      setError('Email already registered.');
       setLoading(false);
+      return;
     }
+    const newUser = { id: Date.now().toString(), fullName: signupName, email: signupEmail, password: signupPassword };
+    saveUsers([...users, newUser]);
+    localStorage.setItem('authUser', JSON.stringify({ fullName: signupName, email: signupEmail }));
+    setSuccess(`Welcome, ${signupName}!`);
+    setLoading(false);
+    setTimeout(() => onAuthSuccess?.(), 900);
   };
 
   const switchMode = (next: 'login' | 'signup') => {
@@ -264,7 +253,7 @@ export default function SignIn({ onAuthSuccess }: Props) {
         </div>
 
         <p className="text-center text-white/25 text-xs mt-6">
-          Your data is stored securely in our database.
+          Your data is stored securely on this device.
         </p>
       </div>
     </div>

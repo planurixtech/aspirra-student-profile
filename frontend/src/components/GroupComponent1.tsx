@@ -299,8 +299,29 @@ export default function GroupComponent1({
 
   const handleStartStop = () => {
     if (isTimerRunning) {
-      // Already running: opens immersive view
-      setIsImmersiveOpen(true);
+      if (isPaused) {
+        // Paused: open immersive so user can resume
+        setIsImmersiveOpen(true);
+      } else {
+        // Stop Session: halt timer, compute elapsed, save to graph
+        setIsTimerRunning(false);
+        setIsPaused(false);
+        if (timerRef.current) clearInterval(timerRef.current);
+        setIsImmersiveOpen(false);
+
+        let elapsedMins = 0;
+        if (studyMode === 'Infinite') {
+          elapsedMins = Math.max(Math.floor(timeLeft / 60), 1);
+        } else {
+          const totalSecs = (studyMode === 'Pomodoro' ? 25 : presetMinutes) * 60;
+          const elapsedSecs = totalSecs - timeLeft;
+          elapsedMins = Math.max(Math.floor(elapsedSecs / 60), 1);
+        }
+        onSessionComplete(elapsedMins, selectedTheme);
+        setTimeLeft(studyMode === 'Pomodoro' ? 25 * 60 : studyMode === 'Infinite' ? 0 : presetMinutes * 60);
+        setSessionStartTime(null);
+        setSessionDurationMinutes(0);
+      }
     } else {
       // Starts a fresh focus timer session
       handleStartTimer();

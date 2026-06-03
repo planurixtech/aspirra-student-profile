@@ -181,12 +181,48 @@ export default function GroupComponent2({
   const [timeDragStartX, setTimeDragStartX] = useState(0);
   const [timeDragScrollLeft, setTimeDragScrollLeft] = useState(0);
 
+  const [showPlusOptions, setShowPlusOptions] = useState(false);
+  const [addMode, setAddMode] = useState<'none' | 'addTask' | 'addTime'>('none');
+  const [rulerTimeMinutes, setRulerTimeMinutes] = useState(9 * 60);
+  const rulerRef = useRef<HTMLDivElement>(null);
+  const [rulerDragging, setRulerDragging] = useState(false);
+  const [timeSwipeStartY, setTimeSwipeStartY] = useState(0);
+  const [timeFixed, setTimeFixed] = useState(false);
+
   const handleSubmitted = () => {
     if (taskTitle.trim()) {
       const formattedTime = taskTime.replace(/\s*:\s*/g, ':');
       onAddTask(taskTitle.trim(), formattedTime);
       setTaskTitle("");
+      setAddMode('none');
+      setShowPlusOptions(false);
     }
+  };
+
+  const handlePlusToggle = () => {
+    if (addMode !== 'none') {
+      setAddMode('none');
+      setShowPlusOptions(false);
+    } else {
+      setShowPlusOptions(prev => !prev);
+    }
+  };
+
+  const handleRulerDrag = (clientX: number) => {
+    if (!rulerRef.current) return;
+    const rect = rulerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    const pct = x / rect.width;
+    const totalMins = Math.round((360 + pct * 960) / 15) * 15;
+    setRulerTimeMinutes(Math.max(360, Math.min(1320, totalMins)));
+  };
+
+  const formatRulerTime = (totalMins: number): string => {
+    const h = Math.floor(totalMins / 60);
+    const m = totalMins % 60;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+    return `${String(h12).padStart(2, '0')}:${String(m).padStart(2, '0')} ${ampm}`;
   };
 
   const firstTsk = tasks[0];
@@ -204,130 +240,350 @@ export default function GroupComponent2({
           <h3 className="font-extrabold text-[15px] text-slate-900 tracking-wider uppercase-title" style={{ fontFamily: 'Segoe UI, sans-serif', fontWeight: '800' }}>
             TODAY ' S PLAN
           </h3>
-          <button 
-            type="button" 
-            onClick={() => setIsCalendarOpen(true)}
-            className="p-1.5 hover:bg-slate-100 rounded-full text-slate-800 transition cursor-pointer active:scale-95 flex items-center justify-center border border-slate-100 shadow-sm"
-            title="Open Interactive Calendar View"
-          >
-            <Calendar className="w-5 h-5 text-slate-800 stroke-[2.2]" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <AnimatePresence>
+              {showPlusOptions && addMode === 'none' && (
+                <>
+                  <motion.button
+                    key="chip-addtime"
+                    initial={{ x: 48, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 48, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 360, damping: 28, delay: 0.07 }}
+                    type="button"
+                    onClick={() => { setAddMode('addTime'); setShowPlusOptions(false); setTimeFixed(false); }}
+                    className="flex items-center gap-1 h-7 px-2.5 bg-[#ecfdf5] border border-[#a7f3d0] rounded-full text-[10.5px] font-bold text-[#065f46] shadow-sm active:scale-95 whitespace-nowrap"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <circle cx="6" cy="6" r="4.5"/><path d="M6 3.5v2.5l1.5 1"/>
+                    </svg>
+                    Add Time
+                  </motion.button>
+                  <motion.button
+                    key="chip-addtask"
+                    initial={{ x: 48, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 48, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 360, damping: 28 }}
+                    type="button"
+                    onClick={() => { setAddMode('addTask'); setShowPlusOptions(false); }}
+                    className="flex items-center gap-1 h-7 px-2.5 bg-[#ecfdf5] border border-[#a7f3d0] rounded-full text-[10.5px] font-bold text-[#065f46] shadow-sm active:scale-95 whitespace-nowrap"
+                  >
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M6 2v8M2 6h8"/>
+                    </svg>
+                    Add Task
+                  </motion.button>
+                </>
+              )}
+            </AnimatePresence>
+            <motion.button
+              type="button"
+              animate={{ rotate: (showPlusOptions || addMode !== 'none') ? 45 : 0 }}
+              transition={{ type: 'spring', stiffness: 360, damping: 24 }}
+              onClick={handlePlusToggle}
+              className="p-1.5 rounded-full bg-[#125652] text-white cursor-pointer active:scale-90 flex items-center justify-center shadow-sm"
+            >
+              <Plus className="w-4 h-4 stroke-[2.5]" />
+            </motion.button>
+            <button
+              type="button"
+              onClick={() => setIsCalendarOpen(true)}
+              className="p-1.5 hover:bg-slate-100 rounded-full text-slate-800 transition cursor-pointer active:scale-95 flex items-center justify-center border border-slate-100 shadow-sm"
+              title="Open Interactive Calendar View"
+            >
+              <Calendar className="w-5 h-5 text-slate-800 stroke-[2.2]" />
+            </button>
+          </div>
         </div>
 
         {/* Task input row + Study task items inside timeline */}
         <div className="relative flex flex-col gap-4">
           
-          {/* ADD TASK ROW (at top of timeline) */}
-          <div className="flex items-center gap-2 relative z-10">
+          {/* ADD TASK / ADD TIME FORMS — shown based on addMode */}
+          <AnimatePresence>
 
-            {/* Time Selector styled as "Add time" Box */}
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowTimeDropdown(!showTimeDropdown)}
-                className="w-[76px] h-9 border border-slate-300 bg-white rounded flex items-center justify-center font-bold text-[11px] text-slate-400 hover:border-slate-400 transition-colors shadow-sm focus:outline-none"
+            {/* ADD TASK MODE */}
+            {addMode === 'addTask' && (
+              <motion.div
+                key="addtask-form"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                className="flex items-center gap-2 relative z-10"
               >
-                <span>{taskTime === "09:00 AM" && taskTitle === "" ? "Add time" : taskTime}</span>
-              </button>
-
-              {/* Horizontal time strip — appears above the button */}
-              <AnimatePresence>
-                {showTimeDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                    transition={{ duration: 0.14, ease: "easeOut" }}
-                    className="absolute bottom-full left-0 mb-1.5 z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-1.5"
-                    style={{ width: 'max-content', maxWidth: '268px' }}
-                  >
-                    <div
-                      ref={timeStripRef}
-                      className="flex gap-1 overflow-x-auto"
-                      style={{
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                        cursor: timeDragging ? 'grabbing' : 'grab'
-                      }}
-                      onMouseDown={(e) => {
-                        if ((e.target as HTMLElement).closest('button')) return;
-                        setTimeDragging(true);
-                        setTimeDragStartX(e.pageX);
-                        setTimeDragScrollLeft(timeStripRef.current?.scrollLeft ?? 0);
-                      }}
-                      onMouseMove={(e) => {
-                        if (!timeDragging || !timeStripRef.current) return;
-                        timeStripRef.current.scrollLeft = timeDragScrollLeft - (e.pageX - timeDragStartX);
-                      }}
-                      onMouseUp={() => setTimeDragging(false)}
-                      onMouseLeave={() => setTimeDragging(false)}
-                    >
-                      {COMMON_TIMES_SUGGESTIONS.map((tm) => (
-                        <button
-                          key={tm}
-                          type="button"
-                          onClick={() => {
-                            setTaskTime(tm);
-                            setShowTimeDropdown(false);
-                          }}
-                          className={`shrink-0 px-2.5 py-1 rounded-full border text-[10px] font-bold whitespace-nowrap transition-colors ${
-                            taskTime === tm
-                              ? 'bg-[#108c5c] text-white border-[#108c5c]'
-                              : 'bg-white text-slate-600 border-slate-200 hover:border-[#108c5c] hover:text-[#108c5c]'
-                          }`}
-                        >
-                          {tm}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Timeline small ring center */}
-            <div className="w-6 h-6 flex items-center justify-center relative shrink-0">
-              <div className="absolute top-1/2 bottom-[-16px] left-1/2 w-[1.5px] -translate-x-1/2 border-r-[1.5px] border-dashed border-slate-300 z-0 pointer-events-none" />
-              <div className="w-[18px] h-[18px] rounded-full border-2 border-[#108c5c] bg-white relative z-10" />
-            </div>
-
-            {/* Add Task Input Field */}
-            <input
-              type="text"
-              value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
-              onFocus={() => setIsInputFocused(true)}
-              onBlur={() => setIsInputFocused(false)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleSubmitted();
-                }
-              }}
-              placeholder="Add Task"
-              className="flex-1 min-w-0 h-9 bg-white border border-slate-300 rounded py-1.5 px-3 text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#108c5c] font-medium text-slate-800 shadow-sm"
-              id="main-add-task-input"
-            />
-
-            {/* Fixed-width container matches task-row checkbox column so all columns stay aligned */}
-            <div className="w-[30px] h-[30px] flex items-center justify-center shrink-0">
-              <AnimatePresence>
-                {(taskTitle.trim() !== '' || isInputFocused) && (
-                  <motion.button
+                {/* Time Selector — tap to open dropdown, swipe up/down to cycle times */}
+                <div className="relative shrink-0">
+                  <button
                     type="button"
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: 20, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 380, damping: 26 }}
-                    onClick={handleSubmitted}
-                    className="w-7 h-7 rounded-full bg-[#125652] hover:bg-[#0c3e3b] active:scale-95 transition-all text-white flex items-center justify-center shadow"
+                    onClick={() => setShowTimeDropdown(!showTimeDropdown)}
+                    onTouchStart={(e) => { setTimeSwipeStartY(e.touches[0].clientY); }}
+                    onTouchMove={(e) => {
+                      const delta = e.touches[0].clientY - timeSwipeStartY;
+                      if (Math.abs(delta) > 14) {
+                        const idx = COMMON_TIMES_SUGGESTIONS.indexOf(taskTime);
+                        if (delta < 0 && idx > 0) setTaskTime(COMMON_TIMES_SUGGESTIONS[idx - 1]);
+                        else if (delta > 0 && idx < COMMON_TIMES_SUGGESTIONS.length - 1) setTaskTime(COMMON_TIMES_SUGGESTIONS[idx + 1]);
+                        setTimeSwipeStartY(e.touches[0].clientY);
+                      }
+                    }}
+                    className="w-[76px] h-9 border border-slate-300 bg-white rounded flex items-center justify-center font-bold text-[11px] text-slate-400 hover:border-slate-400 transition-colors shadow-sm focus:outline-none select-none"
                   >
-                    <Plus className="w-4 h-4 stroke-[3]" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
+                    <span>{taskTime === "09:00 AM" && taskTitle === "" ? "Add time" : taskTime}</span>
+                  </button>
+
+                  <AnimatePresence>
+                    {showTimeDropdown && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                        transition={{ duration: 0.14, ease: "easeOut" }}
+                        className="absolute bottom-full left-0 mb-1.5 z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-1.5"
+                        style={{ width: 'max-content', maxWidth: '268px' }}
+                      >
+                        <div
+                          ref={timeStripRef}
+                          className="flex gap-1 overflow-x-auto"
+                          style={{
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                            cursor: timeDragging ? 'grabbing' : 'grab'
+                          }}
+                          onMouseDown={(e) => {
+                            if ((e.target as HTMLElement).closest('button')) return;
+                            setTimeDragging(true);
+                            setTimeDragStartX(e.pageX);
+                            setTimeDragScrollLeft(timeStripRef.current?.scrollLeft ?? 0);
+                          }}
+                          onMouseMove={(e) => {
+                            if (!timeDragging || !timeStripRef.current) return;
+                            timeStripRef.current.scrollLeft = timeDragScrollLeft - (e.pageX - timeDragStartX);
+                          }}
+                          onMouseUp={() => setTimeDragging(false)}
+                          onMouseLeave={() => setTimeDragging(false)}
+                        >
+                          {COMMON_TIMES_SUGGESTIONS.map((tm) => (
+                            <button
+                              key={tm}
+                              type="button"
+                              onClick={() => { setTaskTime(tm); setShowTimeDropdown(false); }}
+                              className={`shrink-0 px-2.5 py-1 rounded-full border text-[10px] font-bold whitespace-nowrap transition-colors ${
+                                taskTime === tm
+                                  ? 'bg-[#108c5c] text-white border-[#108c5c]'
+                                  : 'bg-white text-slate-600 border-slate-200 hover:border-[#108c5c] hover:text-[#108c5c]'
+                              }`}
+                            >
+                              {tm}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Timeline ring */}
+                <div className="w-6 h-6 flex items-center justify-center relative shrink-0">
+                  <div className="absolute top-1/2 bottom-[-16px] left-1/2 w-[1.5px] -translate-x-1/2 border-r-[1.5px] border-dashed border-slate-300 z-0 pointer-events-none" />
+                  <div className="w-[18px] h-[18px] rounded-full border-2 border-[#108c5c] bg-white relative z-10" />
+                </div>
+
+                {/* Task title input */}
+                <input
+                  type="text"
+                  value={taskTitle}
+                  onChange={(e) => setTaskTitle(e.target.value)}
+                  onFocus={() => setIsInputFocused(true)}
+                  onBlur={() => setIsInputFocused(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); handleSubmitted(); }
+                  }}
+                  placeholder="Add Task"
+                  className="flex-1 min-w-0 h-9 bg-white border border-slate-300 rounded py-1.5 px-3 text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#108c5c] font-medium text-slate-800 shadow-sm"
+                  id="main-add-task-input"
+                  autoFocus
+                />
+
+                <div className="w-[30px] h-[30px] flex items-center justify-center shrink-0">
+                  <AnimatePresence>
+                    {(taskTitle.trim() !== '' || isInputFocused) && (
+                      <motion.button
+                        type="button"
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 20, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 26 }}
+                        onClick={handleSubmitted}
+                        className="w-7 h-7 rounded-full bg-[#125652] hover:bg-[#0c3e3b] active:scale-95 transition-all text-white flex items-center justify-center shadow"
+                      >
+                        <Plus className="w-4 h-4 stroke-[3]" />
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ADD TIME MODE — same row layout as addTask; right box switches ruler ↔ input */}
+            {addMode === 'addTime' && (
+              <motion.div
+                key="addtime-ruler"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+                className="flex items-center gap-2 relative z-10"
+              >
+                {/* Left: time label / fixed time — same width as task-mode time button */}
+                <div className="w-[76px] h-9 border rounded flex items-center justify-center font-bold text-[11px] shrink-0 shadow-sm select-none"
+                  style={timeFixed
+                    ? { borderColor: '#a7f3d0', background: '#ecfdf5', color: '#065f46' }
+                    : { borderColor: '#cbd5e1', background: '#fff', color: '#94a3b8' }
+                  }
+                >
+                  {timeFixed ? formatRulerTime(rulerTimeMinutes) : 'Add time'}
+                </div>
+
+                {/* Middle: timeline circle — same as addTask */}
+                <div className="w-6 h-6 flex items-center justify-center relative shrink-0">
+                  <div className="absolute top-1/2 bottom-[-16px] left-1/2 w-[1.5px] -translate-x-1/2 border-r-[1.5px] border-dashed border-slate-300 z-0 pointer-events-none" />
+                  <div className="w-[18px] h-[18px] rounded-full border-2 border-[#108c5c] bg-white relative z-10" />
+                </div>
+
+                {/* Right box: ruler OR task input — occupies same flex-1 space */}
+                <AnimatePresence mode="wait">
+                  {!timeFixed ? (
+                    <motion.div
+                      key="ruler-box"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex-1 min-w-0 relative rounded overflow-hidden select-none"
+                      ref={rulerRef}
+                      style={{
+                        height: '36px',
+                        cursor: rulerDragging ? 'grabbing' : 'grab',
+                        background: 'linear-gradient(135deg, #0f3d2e 0%, #1a5c42 60%, #125652 100%)',
+                        boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.3)',
+                      }}
+                      onMouseDown={(e) => { setRulerDragging(true); handleRulerDrag(e.clientX); }}
+                      onMouseMove={(e) => { if (rulerDragging) handleRulerDrag(e.clientX); }}
+                      onMouseUp={() => { setRulerDragging(false); setTimeFixed(true); }}
+                      onMouseLeave={() => { if (rulerDragging) setTimeFixed(true); setRulerDragging(false); }}
+                      onTouchStart={(e) => { setRulerDragging(true); handleRulerDrag(e.touches[0].clientX); }}
+                      onTouchMove={(e) => { e.preventDefault(); if (rulerDragging) handleRulerDrag(e.touches[0].clientX); }}
+                      onTouchEnd={() => { setRulerDragging(false); setTimeFixed(true); }}
+                    >
+                      {/* Tick marks */}
+                      <div className="absolute bottom-0 left-0 right-0 flex items-end" style={{ height: '24px' }}>
+                        {Array.from({ length: 33 }, (_, i) => (
+                          <div key={i} className="flex-1 flex justify-center items-end pb-[4px]">
+                            <div style={{
+                              width: '1.5px',
+                              height: i % 4 === 0 ? '13px' : '7px',
+                              backgroundColor: i % 4 === 0 ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.22)',
+                              borderRadius: '1px'
+                            }} />
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Progress glow */}
+                      <div className="absolute inset-y-0 left-0 pointer-events-none" style={{
+                        width: `${((rulerTimeMinutes - 360) / 960) * 100}%`,
+                        background: 'linear-gradient(90deg, rgba(62,209,142,0.22) 0%, rgba(62,209,142,0.04) 100%)'
+                      }} />
+
+                      {/* Vertical handle line */}
+                      <div className="absolute top-[4px] bottom-0 pointer-events-none" style={{
+                        left: `${((rulerTimeMinutes - 360) / 960) * 100}%`,
+                        width: '2px',
+                        transform: 'translateX(-50%)',
+                        background: 'rgba(255,255,255,0.8)',
+                        boxShadow: '0 0 5px rgba(255,255,255,0.5)',
+                        borderRadius: '1px'
+                      }} />
+
+                      {/* Glowing dot */}
+                      <div className="absolute pointer-events-none" style={{
+                        top: '40%',
+                        left: `${((rulerTimeMinutes - 360) / 960) * 100}%`,
+                        transform: 'translate(-50%, -50%)',
+                        width: '9px', height: '9px',
+                        borderRadius: '50%',
+                        background: '#3ed18e',
+                        boxShadow: '0 0 7px #3ed18e, 0 0 14px rgba(62,209,142,0.5)'
+                      }} />
+
+                      {/* Floating time label inside ruler */}
+                      <div className="absolute top-[3px] right-[8px] pointer-events-none">
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.04em' }}>
+                          {formatRulerTime(rulerTimeMinutes)}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="task-input-box"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex-1 min-w-0 flex items-center gap-2"
+                    >
+                      <input
+                        type="text"
+                        value={taskTitle}
+                        onChange={(e) => setTaskTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (taskTitle.trim()) {
+                              onAddTask(taskTitle.trim(), formatRulerTime(rulerTimeMinutes));
+                              setTaskTitle("");
+                              setAddMode('none');
+                              setTimeFixed(false);
+                            }
+                          }
+                        }}
+                        placeholder="Add Task"
+                        className="flex-1 min-w-0 h-9 bg-white border border-slate-300 rounded py-1.5 px-3 text-xs placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#108c5c] font-medium text-slate-800 shadow-sm"
+                        autoFocus
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Right action button — same slot as addTask mode */}
+                <div className="w-[30px] h-[30px] flex items-center justify-center shrink-0">
+                  <AnimatePresence>
+                    {timeFixed && taskTitle.trim() !== '' && (
+                      <motion.button
+                        type="button"
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: 20, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                        onClick={() => {
+                          onAddTask(taskTitle.trim(), formatRulerTime(rulerTimeMinutes));
+                          setTaskTitle("");
+                          setAddMode('none');
+                          setTimeFixed(false);
+                        }}
+                        className="w-7 h-7 rounded-full bg-[#125652] hover:bg-[#0c3e3b] active:scale-95 transition-all text-white flex items-center justify-center shadow"
+                      >
+                        <Plus className="w-4 h-4 stroke-[3]" />
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+
+          </AnimatePresence>
 
           {/* TASKS TIMELINE PREVIEW LIST */}
           {tasks.map((tsk, idx) => {

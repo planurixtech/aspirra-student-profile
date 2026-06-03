@@ -4,13 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:backend": "dotnet watch --project backend/src/Aspirra.Api",
-    "dev:frontend": "vite frontend",
     "dev": "vite frontend",
+    "dev:frontend": "vite frontend",
     "build": "vite build frontend --outDir dist --emptyOutDir",
     "build:frontend": "vite build frontend --outDir dist --emptyOutDir",
-    "build:backend": "dotnet publish backend/src/Aspirra.Api -c Release -o dist/publish",
-    "start": "node --import tsx/esm backend/server.ts",
     "lint": "tsc --project frontend/tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -21,9 +18,11 @@
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^17.2.3",
+    "expo": "^56.0.8",
     "express": "^4.21.2",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
+    "pg": "^8.21.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
     "vite": "^6.2.3"
@@ -31,6 +30,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.21",

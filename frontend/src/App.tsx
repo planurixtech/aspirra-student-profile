@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye } from 'lucide-react';
 import SignIn from './components/SignIn';
-import { apiFetch } from './api';
+import { getState, saveTasks, saveProfile, updateTargetHours, logStudySession, resetAppState } from './api';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   INITIAL_PROFILE,
@@ -384,31 +384,19 @@ export default function App() {
   const taskFormInputRef = useRef<HTMLInputElement | null>(null);
 
 
-  // --- BACKEND API SYNCHRONIZATION ---
+  // --- LOCAL STATE SYNCHRONIZATION ---
 
-  // On mount, pull current state from the persistent Node.js Express server
   useEffect(() => {
-    apiFetch('/api/state')
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          if (data.profile) setProfile(data.profile);
-          if (data.weeklyLogs) setWeeklyLogs(data.weeklyLogs);
-          if (data.tasks) setTasks(data.tasks);
-          if (typeof data.completedMinutes === 'number') setCompletedMinutes(data.completedMinutes);
-          if (typeof data.targetHours === 'number') setTargetHours(data.targetHours);
-        }
-      })
-      .catch(err => console.error("Error loading state from Express backend:", err));
+    const data = getState();
+    if (data.profile) setProfile(data.profile);
+    if (data.weeklyLogs) setWeeklyLogs(data.weeklyLogs);
+    if (data.tasks) setTasks(data.tasks);
+    if (typeof data.completedMinutes === 'number') setCompletedMinutes(data.completedMinutes);
+    if (typeof data.targetHours === 'number') setTargetHours(data.targetHours);
   }, []);
 
   const syncTasksToBackend = (updatedTasks: TaskItem[]) => {
-    apiFetch('/api/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tasks: updatedTasks })
-    })
-    .catch(err => console.error("Error syncing tasks:", err));
+    saveTasks(updatedTasks);
   };
 
   // 1. Task Management
@@ -447,48 +435,21 @@ export default function App() {
   // Profile Update Dispatcher
   const handleUpdateProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
-    apiFetch('/api/profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newProfile)
-    })
-    .catch(err => console.error("Error updating profile on backend:", err));
+    saveProfile(newProfile);
   };
 
   // Target hours drag action updater
   const handleUpdateTargetHours = (hours: number) => {
     setTargetHours(hours);
-    apiFetch('/api/target-hours', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ targetHours: hours })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success' && data.weeklyLogs) {
-        setWeeklyLogs(data.weeklyLogs);
-      }
-    })
-    .catch(err => console.error("Error updating target hours on backend:", err));
+    setWeeklyLogs(updateTargetHours(hours));
   };
 
-  // 2. Focused study completed callback - Adds to statistics in lockstep via backend
+  // 2. Focused study completed callback
   const handleSessionComplete = (minutes: number, _theme: string) => {
     setFocusLogCount(prev => prev + 1);
-    apiFetch('/api/study-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ minutes })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        if (typeof data.completedMinutes === 'number') setCompletedMinutes(data.completedMinutes);
-        if (data.weeklyLogs) setWeeklyLogs(data.weeklyLogs);
-      }
-    })
-    .catch(err => console.error("Error saving completed study session on backend:", err));
-
+    const { completedMinutes, weeklyLogs } = logStudySession(minutes);
+    setCompletedMinutes(completedMinutes);
+    setWeeklyLogs(weeklyLogs);
   };
 
   // 3. Quick Access Dispatcher
@@ -511,19 +472,12 @@ export default function App() {
   // 4. Reset helper state
   const handleResetEnvironment = () => {
     if (confirm("Would you like to reset all focusing logs, diet counters, and plan tasks?")) {
-      apiFetch('/api/reset', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'success') {
-            setCompletedMinutes(data.completedMinutes);
-            setTasks(data.tasks);
-            setWeeklyLogs(data.weeklyLogs);
-            setTargetHours(data.targetHours);
-            setProfile(data.profile);
-          }
-        })
-        .catch(err => console.error("Error resetting database state:", err));
-
+      const data = resetAppState();
+      setCompletedMinutes(data.completedMinutes);
+      setTasks(data.tasks);
+      setWeeklyLogs(data.weeklyLogs);
+      setTargetHours(data.targetHours);
+      setProfile(data.profile);
       setWaterGlasses(3);
       setFoodCalories(400);
       setSnacksList(["Walnuts & Almonds (Aptitude stamina)"]);
@@ -1374,8 +1328,8 @@ export default function App() {
               ) : (
                 <>
                   {/* Profile header zone: solid styled emerald bg */}
-                  <div 
-                    className="w-full bg-[#125652] px-4.5 py-4 text-white flex flex-col border-b border-[#0ec38c]/10 shrink-0"
+                  <div
+                    className="w-full bg-[#125652] px-4 pt-4 pb-4 text-white flex flex-col border-b border-[#0ec38c]/10 shrink-0"
                     style={{
                       borderBottomLeftRadius: '20px',
                       borderBottomRightRadius: '20px',
@@ -1385,14 +1339,8 @@ export default function App() {
                   >
                     {/* 1. Profile information section */}
                     <FrameComponent profile={profile} onChangeProfile={handleUpdateProfile} />
-                  </div>
 
-                  {/* Central interactive lists and components block */}
-                  <div className="px-4 pb-6 flex-1 space-y-3.5">
-                    {/* 3. Quick tools utility strip */}
-                    <UtilityBar onSelectAction={handleQuickActionDispatch} />
-
-                    {/* 4. Daily Study Goal */}
+                    {/* 2. Daily Study Goal — embedded in header block */}
                     <GroupComponent
                       weeklyLogs={weeklyLogs}
                       completedMinutes={completedMinutes}
@@ -1403,6 +1351,12 @@ export default function App() {
                       onOpenAddTask={() => handleQuickActionDispatch("AddTask")}
                       onOpenGraph={() => setShowMyFocus(true)}
                     />
+                  </div>
+
+                  {/* Central interactive lists and components block */}
+                  <div className="px-4 pb-6 flex-1 space-y-3.5">
+                    {/* 3. Quick tools utility strip */}
+                    <UtilityBar onSelectAction={handleQuickActionDispatch} />
 
                     {/* 5. Ambient Focus Study timer */}
                     <GroupComponent1
@@ -1481,18 +1435,16 @@ export default function App() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setIsSyllabusSettingsOpen(true)}
-                      className={`px-3 py-1 text-[10.5px] font-extrabold text-white rounded-full border active:scale-95 transition-transform cursor-pointer flex items-center gap-1 leading-none shadow-sm ${
-                        isRevisionMode 
-                          ? 'bg-amber-600 border-amber-400 hover:bg-amber-700/80' 
-                          : 'bg-white/10 hover:bg-white/20 border-white/20'
-                      }`}
-                      title="Click to adjust Revision and Syllabus settings"
-                    >
-                      <span className={`w-1.5 h-1.5 rounded-full ${isRevisionMode ? 'bg-amber-100 animate-ping' : 'bg-emerald-400'} shrink-0`} />
-                      <span>{isRevisionMode ? "Revision" : "Normal"}</span>
-                    </button>
+                    {isRevisionMode && (
+                      <button
+                        onClick={() => setIsSyllabusSettingsOpen(true)}
+                        className="px-3 py-1 text-[10.5px] font-extrabold text-white rounded-full border active:scale-95 transition-transform cursor-pointer flex items-center gap-1 leading-none shadow-sm bg-amber-600 border-amber-400 hover:bg-amber-700/80"
+                        title="Click to adjust Revision and Syllabus settings"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-100 animate-ping shrink-0" />
+                        <span>Revision</span>
+                      </button>
+                    )}
                     <button 
                       type="button"
                       onClick={() => setIsChooseExamOpen(true)}

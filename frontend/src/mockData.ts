@@ -125,6 +125,188 @@ export const SYLLABUS_DATA: SyllabusSubject[] = [
   }
 ];
 
+// TNPSC Group 1 — CCSE-I 2026 Complete Syllabus
+// Source: Tamil Nadu Public Service Commission | Exam Date: 3 August 2026
+export const TNPSC_GROUP1_SYLLABUS_DATA: SyllabusSubject[] = [
+
+  // ── PRELIMS PART A: GENERAL STUDIES ──────────────────────────────────────
+
+  {
+    id: "g1-eco",
+    title: "Indian Economy & Development",
+    code: "PRELIMS ~50Q",
+    progress: 0,
+    units: [
+      { id: "eco-1", name: "Five Year Plans · NITI Aayog · Economic Surveys · GDP & GNP", weightage: "High", completed: false },
+      { id: "eco-2", name: "Sectoral Analysis — Agriculture · Industry · Services · Infrastructure", weightage: "High", completed: false },
+      { id: "eco-3", name: "Economic Reforms — 1991 Reforms · Financial Inclusion · Startup India", weightage: "High", completed: false },
+      { id: "eco-4", name: "TN State Economy — GSDP Trends · Per Capita Income · Budget Analysis", weightage: "High", completed: false },
+      { id: "eco-5", name: "TN Industrial Dev — Manufacturing · IT & Software · MSME · Industrial Parks", weightage: "Medium", completed: false },
+      { id: "eco-6", name: "TN Agriculture — Cropping Patterns · Irrigation · Agricultural Schemes · Animal Husbandry", weightage: "Medium", completed: false },
+      { id: "eco-7", name: "TN Infrastructure — Transport · Urban Development · Water Resources · Inter-state Disputes", weightage: "Medium", completed: false },
+      { id: "eco-8", name: "Govt Schemes — Amma Schemes · Pension Programs · MGNREGA in TN", weightage: "Medium", completed: false },
+      { id: "eco-9", name: "Govt Schemes — Mid-Day Meal · Scholarships · Health Insurance · Medical Facilities", weightage: "Medium", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-tnhist",
+    title: "Tamil Nadu History, Culture & Movements",
+    code: "PRELIMS ~40Q",
+    progress: 0,
+    units: [
+      { id: "tnh-1", name: "Sangam Period — Three Kingdoms (Chera, Chola, Pandya) · Sangam Literature · Society", weightage: "High", completed: false },
+      { id: "tnh-2", name: "Post-Sangam — Kalabhra Rule · Pallava Dynasty · Temple Architecture", weightage: "High", completed: false },
+      { id: "tnh-3", name: "Chola Empire — Administrative System · Cultural Achievements · Maritime Trade", weightage: "High", completed: false },
+      { id: "tnh-4", name: "Other Dynasties — Later Pandyas · Hoysala Influence · Vijayanagara Period", weightage: "Medium", completed: false },
+      { id: "tnh-5", name: "Colonial Period — East India Company · Colonial Administration · Economic Impact", weightage: "High", completed: false },
+      { id: "tnh-6", name: "Resistance — Polygar Wars · 1857 Revolt · Early Nationalism · Peasant Movements", weightage: "High", completed: false },
+      { id: "tnh-7", name: "Self-Respect Movement — Justice Party · Periyar E.V. Ramasamy · Anti-Brahmin Movement", weightage: "High", completed: false },
+      { id: "tnh-8", name: "Dravidian Movement — DMK Formation · AIADMK Split · Political Impact · Cultural Renaissance", weightage: "High", completed: false },
+      { id: "tnh-9", name: "Contemporary — Regional Parties · Social Justice · Tamil Nationalism · Recent Developments", weightage: "Medium", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-polity",
+    title: "Indian Polity",
+    code: "PRELIMS ~40Q",
+    progress: 0,
+    units: [
+      { id: "pol-1", name: "Constitutional Development — Historical Background · Constituent Assembly · Preamble", weightage: "High", completed: false },
+      { id: "pol-2", name: "Fundamental Rights · Fundamental Duties · Directive Principles · Amendments", weightage: "High", completed: false },
+      { id: "pol-3", name: "Union Executive — President · Vice-President · Prime Minister · Cabinet System", weightage: "High", completed: false },
+      { id: "pol-4", name: "Legislature — Lok Sabha · Rajya Sabha · Parliamentary Procedures · Legislative Relations", weightage: "High", completed: false },
+      { id: "pol-5", name: "Judiciary — Supreme Court · High Courts · Judicial Review · Judicial Activism", weightage: "High", completed: false },
+      { id: "pol-6", name: "State Govt — Governor · Chief Minister · State Legislature", weightage: "Medium", completed: false },
+      { id: "pol-7", name: "Centre-State Relations — Legislative · Administrative · Financial Relations", weightage: "Medium", completed: false },
+      { id: "pol-8", name: "Panchayati Raj — 73rd Amendment · Elections · Women's Participation", weightage: "Medium", completed: false },
+      { id: "pol-9", name: "Urban Local Bodies — 74th Amendment · Functions & Finances · Smart Cities", weightage: "Medium", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-hist",
+    title: "History & Indian National Movement",
+    code: "PRELIMS ~25Q",
+    progress: 0,
+    units: [
+      { id: "his-1", name: "Early Civilizations — Indus Valley · Vedic Period · Buddhism & Jainism", weightage: "High", completed: false },
+      { id: "his-2", name: "Classical Period — Gupta Empire · Post-Gupta · South Indian Dynasties", weightage: "High", completed: false },
+      { id: "his-3", name: "Delhi Sultanate — Establishment · Administrative System · Economic Policies", weightage: "Medium", completed: false },
+      { id: "his-4", name: "Mughal Empire — Foundation · Akbar's Policies · Later Mughals · Maratha Rise", weightage: "Medium", completed: false },
+      { id: "his-5", name: "British Colonial Rule — Company Rule · Crown Rule · Economic Impact", weightage: "High", completed: false },
+      { id: "his-6", name: "National Movement — Early Phase · Extremist Phase · Gandhian Era · Notable Personalities", weightage: "High", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-geo",
+    title: "Geography of India",
+    code: "PRELIMS ~10Q",
+    progress: 0,
+    units: [
+      { id: "geo-1", name: "Physiographic Divisions — Northern Mountains · Northern Plains · Peninsular Plateau · Coastal Plains", weightage: "High", completed: false },
+      { id: "geo-2", name: "Climate & Monsoon — Monsoon System · Seasonal Variations · Rainfall Distribution", weightage: "High", completed: false },
+      { id: "geo-3", name: "Human Geography — Population Distribution · Demographic Trends · Census Data", weightage: "Medium", completed: false },
+      { id: "geo-4", name: "Economic Geography — Agricultural Regions · Industrial Centers · Transport Networks", weightage: "Medium", completed: false },
+      { id: "geo-5", name: "Environmental Geography — Natural Disasters · Environmental Issues · Conservation", weightage: "Medium", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-sci",
+    title: "General Science",
+    code: "PRELIMS ~10Q",
+    progress: 0,
+    units: [
+      { id: "sci-1", name: "Classical Physics — Mechanics · Heat & Thermodynamics · Optics · Electricity & Magnetism", weightage: "High", completed: false },
+      { id: "sci-2", name: "Modern Physics — Atomic Structure · Space Science · Nuclear Science", weightage: "Medium", completed: false },
+      { id: "sci-3", name: "Basic Chemistry — Atomic Theory · Chemical Reactions · Organic Chemistry · Environmental Chemistry", weightage: "High", completed: false },
+      { id: "sci-4", name: "Applied Chemistry — Industrial Chemistry · Food Chemistry · Biochemistry", weightage: "Medium", completed: false },
+      { id: "sci-5", name: "Life Sciences — Cell Biology · Genetics · Evolution · Ecology", weightage: "High", completed: false },
+      { id: "sci-6", name: "Human Biology — Human Physiology · Health & Disease · Reproduction", weightage: "High", completed: false },
+      { id: "sci-7", name: "Current S&T — Recent Discoveries · Technology Applications · Medical Advances", weightage: "Medium", completed: false },
+    ]
+  },
+
+  // ── PRELIMS PART B: APTITUDE & MENTAL ABILITY ────────────────────────────
+
+  {
+    id: "g1-apt",
+    title: "Aptitude & Mental Ability",
+    code: "PRELIMS 25Q",
+    progress: 0,
+    units: [
+      { id: "apt-1", name: "Ratios & Proportions · Simplification · Percentages · HCF & LCM", weightage: "High", completed: false },
+      { id: "apt-2", name: "Simple & Compound Interest · Time & Work · Area & Volume", weightage: "High", completed: false },
+      { id: "apt-3", name: "Syllogism · Number Series · Puzzle Problems · Dice Problems", weightage: "High", completed: false },
+      { id: "apt-4", name: "Alphanumeric Problems · Visual Reasoning · Logical Reasoning", weightage: "High", completed: false },
+    ]
+  },
+
+  // ── MAINS PAPERS ──────────────────────────────────────────────────────────
+
+  {
+    id: "g1-p1",
+    title: "Paper 1 — Tamil Eligibility Test",
+    code: "MAINS 100M",
+    progress: 0,
+    units: [
+      { id: "p1-1", name: "Essay Writing · Précis Writing · Comprehension", weightage: "High", completed: false },
+      { id: "p1-2", name: "Grammar · Translation (English ↔ Tamil) · Letter Writing", weightage: "High", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-p2",
+    title: "Paper 2 — General Studies I",
+    code: "MAINS 250M",
+    progress: 0,
+    units: [
+      { id: "p2-1", name: "Unit I: Modern History — Freedom Struggle · National Leaders · Social Reform Movements", weightage: "High", completed: false },
+      { id: "p2-2", name: "Unit I: Indian Culture — Art & Architecture · Music · Dance · Literature · Cultural Evolution", weightage: "High", completed: false },
+      { id: "p2-3", name: "Unit II: Aptitude (Degree) — Data Interpretation · Logical Reasoning · Analytical Ability", weightage: "High", completed: false },
+      { id: "p2-4", name: "Unit II: Verbal & Non-verbal Reasoning · Comprehension Passages", weightage: "Medium", completed: false },
+      { id: "p2-5", name: "Unit III: Social Issues — Population · Poverty · Unemployment · Education · Health", weightage: "High", completed: false },
+      { id: "p2-6", name: "Unit III: Social Issues — Gender · Tribal Issues · Communalism · Secularism · Regionalism", weightage: "Medium", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-p3",
+    title: "Paper 3 — General Studies II",
+    code: "MAINS 250M",
+    progress: 0,
+    units: [
+      { id: "p3-1", name: "Unit I: Indian Polity — Constitution · Parliament · Judiciary · Centre-State Relations", weightage: "High", completed: false },
+      { id: "p3-2", name: "Unit I: Electoral System · Federalism · Governance Reforms · RTI · CAG", weightage: "High", completed: false },
+      { id: "p3-3", name: "Unit II: Comprehension — Reading & Answering (English or Tamil)", weightage: "Medium", completed: false },
+      { id: "p3-4", name: "Unit III: Administration — District Administration · Role of IAS/IPS · Public Service Delivery", weightage: "High", completed: false },
+      { id: "p3-5", name: "Unit III: e-Governance · RTI Implementation", weightage: "Medium", completed: false },
+      { id: "p3-6", name: "Unit IV: TN Society — Dravidian Culture · Classical Tamil Literature · Music & Dance · Festivals", weightage: "High", completed: false },
+      { id: "p3-7", name: "Unit IV: TN Heritage — Religion · Social Justice Movements · Thirukkural", weightage: "High", completed: false },
+    ]
+  },
+
+  {
+    id: "g1-p4",
+    title: "Paper 4 — General Studies III",
+    code: "MAINS 250M",
+    progress: 0,
+    units: [
+      { id: "p4-1", name: "Unit I: Geography — Physical · Climatic · Rivers & Water Bodies · Natural Resources", weightage: "High", completed: false },
+      { id: "p4-2", name: "Unit I: Geography — Agriculture · Population · Urbanisation · Disasters (India & TN)", weightage: "High", completed: false },
+      { id: "p4-3", name: "Unit II: Environment — Ecology · Conservation · Climate Change · Biodiversity Hotspots", weightage: "High", completed: false },
+      { id: "p4-4", name: "Unit II: Disaster Management — NDMA · Disaster Mitigation Strategies", weightage: "Medium", completed: false },
+      { id: "p4-5", name: "Unit III: Indian Economy — Banking & Finance · Monetary Policy · Union Budget", weightage: "High", completed: false },
+      { id: "p4-6", name: "Unit III: Global Trends — WTO · IMF · World Bank · Globalisation", weightage: "Medium", completed: false },
+      { id: "p4-7", name: "Unit IV: Science & Technology — IT Revolution · Space (ISRO) · Defence · Biotechnology", weightage: "High", completed: false },
+      { id: "p4-8", name: "Unit IV: S&T — Nuclear Technology · Digital India", weightage: "Medium", completed: false },
+    ]
+  },
+];
+
 // NEET PG Complete Syllabus — 19 subjects across Pre-Clinical, Para-Clinical, and Clinical parts
 export const NEET_PG_SYLLABUS_DATA: SyllabusSubject[] = [
   // PART A — Pre-Clinical
