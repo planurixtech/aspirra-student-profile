@@ -1,16 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock, CheckCircle } from 'lucide-react';
 
-const USERS_KEY = 'aspirra_users';
-
-function getUsers(): Array<{ id: string; fullName: string; email: string; password: string }> {
-  try { const s = localStorage.getItem(USERS_KEY); return s ? JSON.parse(s) : []; }
-  catch { return []; }
-}
-
-function saveUsers(users: ReturnType<typeof getUsers>) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
 
 interface Props {
   onAuthSuccess?: () => void;
@@ -33,38 +23,57 @@ export default function SignIn({ onAuthSuccess }: Props) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const users = getUsers();
-    const user = users.find(u => u.email === loginEmail && u.password === loginPassword);
-    if (!user) {
-      setError('Invalid email or password.');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || 'Invalid email or password.');
+        setLoading(false);
+        return;
+      }
+      localStorage.setItem('authToken', data.accessToken);
+      localStorage.setItem('authUser', JSON.stringify({ fullName: data.user.fullName, email: data.user.email }));
       setLoading(false);
-      return;
+      onAuthSuccess?.();
+    } catch {
+      setError('Connection error. Please try again.');
+      setLoading(false);
     }
-    localStorage.setItem('authUser', JSON.stringify({ fullName: user.fullName, email: user.email }));
-    setLoading(false);
-    onAuthSuccess?.();
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const users = getUsers();
-    if (users.find(u => u.email === signupEmail)) {
-      setError('Email already registered.');
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName: signupName, email: signupEmail, password: signupPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || (data.errors?.FullName?.[0]) || 'Registration failed.');
+        setLoading(false);
+        return;
+      }
+      localStorage.setItem('authToken', data.accessToken);
+      localStorage.setItem('authUser', JSON.stringify({ fullName: data.user.fullName, email: data.user.email }));
+      setSuccess(`Welcome, ${data.user.fullName}!`);
       setLoading(false);
-      return;
+      setTimeout(() => onAuthSuccess?.(), 900);
+    } catch {
+      setError('Connection error. Please try again.');
+      setLoading(false);
     }
-    const newUser = { id: Date.now().toString(), fullName: signupName, email: signupEmail, password: signupPassword };
-    saveUsers([...users, newUser]);
-    localStorage.setItem('authUser', JSON.stringify({ fullName: signupName, email: signupEmail }));
-    setSuccess(`Welcome, ${signupName}!`);
-    setLoading(false);
-    setTimeout(() => onAuthSuccess?.(), 900);
   };
 
   const switchMode = (next: 'login' | 'signup') => {

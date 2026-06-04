@@ -387,16 +387,17 @@ export default function App() {
   // --- LOCAL STATE SYNCHRONIZATION ---
 
   useEffect(() => {
-    const data = getState();
-    if (data.profile) setProfile(data.profile);
-    if (data.weeklyLogs) setWeeklyLogs(data.weeklyLogs);
-    if (data.tasks) setTasks(data.tasks);
-    if (typeof data.completedMinutes === 'number') setCompletedMinutes(data.completedMinutes);
-    if (typeof data.targetHours === 'number') setTargetHours(data.targetHours);
+    getState().then(data => {
+      if (data.profile) setProfile(data.profile);
+      if (data.weeklyLogs) setWeeklyLogs(data.weeklyLogs);
+      if (data.tasks) setTasks(data.tasks);
+      if (typeof data.completedMinutes === 'number') setCompletedMinutes(data.completedMinutes);
+      if (typeof data.targetHours === 'number') setTargetHours(data.targetHours);
+    }).catch(() => {});
   }, []);
 
   const syncTasksToBackend = (updatedTasks: TaskItem[]) => {
-    saveTasks(updatedTasks);
+    saveTasks(updatedTasks).catch(() => {});
   };
 
   // 1. Task Management
@@ -435,21 +436,24 @@ export default function App() {
   // Profile Update Dispatcher
   const handleUpdateProfile = (newProfile: UserProfile) => {
     setProfile(newProfile);
-    saveProfile(newProfile);
+    saveProfile(newProfile).catch(() => {});
   };
 
   // Target hours drag action updater
-  const handleUpdateTargetHours = (hours: number) => {
+  const handleUpdateTargetHours = async (hours: number) => {
     setTargetHours(hours);
-    setWeeklyLogs(updateTargetHours(hours));
+    const logs = await updateTargetHours(hours).catch(() => null);
+    if (logs) setWeeklyLogs(logs);
   };
 
   // 2. Focused study completed callback
-  const handleSessionComplete = (minutes: number, _theme: string) => {
+  const handleSessionComplete = async (minutes: number, _theme: string) => {
     setFocusLogCount(prev => prev + 1);
-    const { completedMinutes, weeklyLogs } = logStudySession(minutes);
-    setCompletedMinutes(completedMinutes);
-    setWeeklyLogs(weeklyLogs);
+    const result = await logStudySession(minutes).catch(() => null);
+    if (result) {
+      setCompletedMinutes(result.completedMinutes);
+      setWeeklyLogs(result.weeklyLogs);
+    }
   };
 
   // 3. Quick Access Dispatcher
@@ -470,14 +474,16 @@ export default function App() {
   };
 
   // 4. Reset helper state
-  const handleResetEnvironment = () => {
+  const handleResetEnvironment = async () => {
     if (confirm("Would you like to reset all focusing logs, diet counters, and plan tasks?")) {
-      const data = resetAppState();
-      setCompletedMinutes(data.completedMinutes);
-      setTasks(data.tasks);
-      setWeeklyLogs(data.weeklyLogs);
-      setTargetHours(data.targetHours);
-      setProfile(data.profile);
+      const data = await resetAppState().catch(() => null);
+      if (data) {
+        setCompletedMinutes(data.completedMinutes);
+        setTasks(data.tasks);
+        setWeeklyLogs(data.weeklyLogs);
+        setTargetHours(data.targetHours);
+        setProfile(data.profile);
+      }
       setWaterGlasses(3);
       setFoodCalories(400);
       setSnacksList(["Walnuts & Almonds (Aptitude stamina)"]);
