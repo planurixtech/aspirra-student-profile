@@ -2,6 +2,10 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+# Limit GC memory so dotnet build doesn't OOM on Render's 512MB free tier
+ENV DOTNET_GCConserveMemory=9 \
+    DOTNET_GCHeapHardLimit=400000000
+
 # Copy project files first for layer caching on restore
 COPY Aspirra.slnx ./
 COPY Directory.Build.props ./
