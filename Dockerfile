@@ -1,5 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+COPY backend/Directory.Build.props ./
 COPY backend/src/ ./
 RUN dotnet publish Aspirra.Api/Aspirra.Api.csproj -c Release -o /app/publish
 
