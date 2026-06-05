@@ -21,5 +21,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 EXPOSE 8080
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
-ENTRYPOINT ["dotnet", "Aspirra.Api.dll"]
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} dotnet Aspirra.Api.dll"]

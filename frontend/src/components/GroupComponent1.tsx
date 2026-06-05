@@ -142,7 +142,6 @@ export default function GroupComponent1({
   const [showTopicSelector, setShowTopicSelector] = useState(false);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [quickTaskTitle, setQuickTaskTitle] = useState("");
-
   // References
   const timerRef        = useRef<NodeJS.Timeout | null>(null);
   const dragStartXRef   = useRef(0);
