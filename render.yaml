@@ -25,12 +25,3 @@ services:
         value: aspirra-users
       - key: Jwt__AccessTokenMinutes
         value: 120
-
-  - type: web
-    name: aspirra-frontend
-    runtime: static
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
-    envVars:
-      - key: VITE_API_URL
-        sync: false
