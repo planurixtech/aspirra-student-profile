@@ -2,5 +2,14 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": null,
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://aspirra-student-profile-production.up.railway.app/api/:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

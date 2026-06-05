@@ -1,10 +1,15 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import { createServer as createViteServer } from 'vite';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const TOKEN_SECRET = process.env.TOKEN_SECRET || 'aspirra-dev-secret';
 const DB_FILE = path.join(process.cwd(), 'backend', 'study-db.json');
 
 app.use(express.json());
@@ -161,6 +166,60 @@ app.post('/api/reset', (req, res) => {
     ...DEFAULT_STATE,
     weeklyLogs: logs
   });
+});
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+const USERS_FILE = path.join(process.cwd(), 'backend', 'users-db.json');
+
+type User = { id: string; fullName: string; email: string; passwordHash: string; salt: string };
+
+function readUsers(): User[] {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+  } catch {
+    return [];
+  }
+}
+
+function writeUsers(users: User[]) {
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
+}
+
+function hashPassword(password: string, salt: string): string {
+  return crypto.pbkdf2Sync(password, salt, 100_000, 64, 'sha256').toString('hex');
+}
+
+app.post('/api/auth/register', (req, res) => {
+  const { fullName, email, password } = req.body ?? {};
+  if (typeof fullName !== 'string' || typeof email !== 'string' || typeof password !== 'string' || password.length < 6) {
+    return res.status(400).json({ error: 'fullName, email, and password (min 6 chars) are required' });
+  }
+  const users = readUsers();
+  if (users.find(u => u.email === email)) {
+    return res.status(409).json({ error: 'Email already registered' });
+  }
+  const salt = crypto.randomBytes(16).toString('hex');
+  const id = crypto.randomUUID();
+  users.push({ id, fullName, email, passwordHash: hashPassword(password, salt), salt });
+  writeUsers(users);
+  const accessToken = jwt.sign({ sub: id, email, fullName }, TOKEN_SECRET, { expiresIn: '7d' });
+  res.status(201).json({ accessToken, user: { fullName, email } });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body ?? {};
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
+  const users = readUsers();
+  const user = users.find(u => u.email === email);
+  if (!user || hashPassword(password, user.salt) !== user.passwordHash) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+  const accessToken = jwt.sign({ sub: user.id, email: user.email, fullName: user.fullName }, TOKEN_SECRET, { expiresIn: '7d' });
+  res.json({ accessToken, user: { fullName: user.fullName, email: user.email } });
 });
 
 // Configure Vite middleware in development or route file serving in production
