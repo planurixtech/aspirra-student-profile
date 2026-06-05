@@ -21,8 +21,7 @@ RUN dotnet publish src/Aspirra.Api/Aspirra.Api.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080 \
-    ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 COPY --from=build /app/publish .
 EXPOSE 8080
