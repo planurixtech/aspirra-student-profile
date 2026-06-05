@@ -73,7 +73,6 @@ export default function GroupComponent({
         {/* Drag hint */}
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] text-white/50 font-semibold tracking-wide">Daily Goal</span>
-          <span className="text-[10px] text-[#2cee99] font-bold">← drag to set →</span>
         </div>
         {/* Bar container with better contrast track */}
         <div className="relative w-full h-[7px] bg-white/10 rounded-full flex items-center">
@@ -82,9 +81,7 @@ export default function GroupComponent({
             className="absolute top-0 left-0 h-full rounded-full transition-all duration-300 ease-out" 
             style={{ 
               width: `${(targetHours / 12) * 100}%`,
-              background: targetHours <= 6 
-                ? '#2cee99' 
-                : `linear-gradient(to right, #2cee99 ${(6 / targetHours) * 100}%, #0c4d40 ${(6 / targetHours) * 100}%)`
+              background: 'linear-gradient(to right, #32D6B3 0%, #35D7AD 16%, #3FDA98 77%, #43DB90 100%)'
             }}
           />
           
@@ -93,8 +90,8 @@ export default function GroupComponent({
             className="absolute w-3.5 h-3.5 rounded-full border-2 shadow-md -translate-x-1/2 cursor-ew-resize transition-all duration-300 pointer-events-none"
             style={{ 
               left: `${(targetHours / 12) * 100}%`,
-              backgroundColor: targetHours <= 6 ? '#2cee99' : '#0c4d40',
-              borderColor: targetHours <= 6 ? '#0c4d40' : '#2cee99'
+              backgroundColor: '#43DB90',
+              borderColor: '#1a6b50'
             }}
           />
 

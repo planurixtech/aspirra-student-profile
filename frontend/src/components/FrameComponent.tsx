@@ -6,9 +6,10 @@ import ProfileDetails from './ProfileDetails';
 interface FrameComponentProps {
   profile: UserProfile;
   onChangeProfile: (updated: UserProfile) => void;
+  onLogout?: () => void;
 }
 
-export default function FrameComponent({ profile, onChangeProfile }: FrameComponentProps) {
+export default function FrameComponent({ profile, onChangeProfile, onLogout }: FrameComponentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [editName, setEditName] = useState(profile.name);
@@ -167,11 +168,12 @@ export default function FrameComponent({ profile, onChangeProfile }: FrameCompon
       </div>
 
       {/* Premium Profile, Address, Refund & Order history view */}
-      <ProfileDetails 
-        isOpen={showProfileDetails} 
-        onClose={() => setShowProfileDetails(false)} 
-        profile={profile} 
-        onChangeProfile={onChangeProfile} 
+      <ProfileDetails
+        isOpen={showProfileDetails}
+        onClose={() => setShowProfileDetails(false)}
+        profile={profile}
+        onChangeProfile={onChangeProfile}
+        onLogout={onLogout}
       />
     </div>
   );

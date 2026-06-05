@@ -1344,7 +1344,14 @@ export default function App() {
                     id="top-profile-curved-bar"
                   >
                     {/* 1. Profile information section */}
-                    <FrameComponent profile={profile} onChangeProfile={handleUpdateProfile} />
+                    <FrameComponent
+                      profile={profile}
+                      onChangeProfile={handleUpdateProfile}
+                      onLogout={() => {
+                        setProfile(INITIAL_PROFILE);
+                        setActiveTab("Auth");
+                      }}
+                    />
 
                     {/* 2. Daily Study Goal — embedded in header block */}
                     <GroupComponent

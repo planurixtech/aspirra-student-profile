@@ -1,0 +1,36 @@
+databases:
+  - name: aspirra-db
+    plan: free
+    databaseName: aspirra_db
+    user: aspirra
+
+services:
+  - type: web
+    name: aspirra-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__Postgres
+        fromDatabase:
+          name: aspirra-db
+          property: connectionString
+      - key: Jwt__SigningKey
+        generateValue: true
+      - key: Jwt__Issuer
+        value: aspirra
+      - key: Jwt__Audience
+        value: aspirra-users
+      - key: Jwt__AccessTokenMinutes
+        value: 120
+
+  - type: web
+    name: aspirra-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false

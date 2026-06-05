@@ -22,7 +22,8 @@ import {
   AlertCircle,
   Save,
   CheckCircle2,
-  HelpCircle
+  HelpCircle,
+  LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserProfile } from '../types';
@@ -47,9 +48,10 @@ interface ProfileDetailsProps {
   onClose: () => void;
   profile: UserProfile;
   onChangeProfile: (updated: UserProfile) => void;
+  onLogout?: () => void;
 }
 
-export default function ProfileDetails({ isOpen, onClose, profile, onChangeProfile }: ProfileDetailsProps) {
+export default function ProfileDetails({ isOpen, onClose, profile, onChangeProfile, onLogout }: ProfileDetailsProps) {
   const [activeTab, setActiveTab ] = useState<'orders' | 'subscriptions'>('orders');
   const [isHovered, setIsHovered] = useState<string | null>(null);
   
@@ -356,20 +358,26 @@ export default function ProfileDetails({ isOpen, onClose, profile, onChangeProfi
               </button>
 
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={() => openEditor('profile')}
                   className="px-3 py-1 text-[11px] font-bold border border-white/20 hover:bg-white/10 rounded-full flex items-center gap-1.5 cursor-pointer transition"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-white stroke-[2.3]" />
                   <span>Edit Profile</span>
                 </button>
-                
-                <button 
-                  onClick={() => openEditor('profile')}
+
+                <button
+                  onClick={() => {
+                    if (confirm('Are you sure you want to log out?')) {
+                      localStorage.removeItem('authToken');
+                      localStorage.removeItem('authUser');
+                      onLogout?.();
+                    }
+                  }}
                   className="p-1.5 hover:bg-white/10 rounded-full text-white cursor-pointer transition"
-                  title="Configure live details"
+                  title="Log out"
                 >
-                  <MoreVertical className="w-5 h-5 stroke-[2.5]" />
+                  <LogOut className="w-5 h-5 stroke-[2.2]" />
                 </button>
               </div>
             </div>
