@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock, CheckCircle } from 'lucide-react';
+import { login, register } from '../api';
 
 
 interface Props {
@@ -28,23 +29,13 @@ export default function SignIn({ onAuthSuccess }: Props) {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || 'Invalid email or password.');
-        setLoading(false);
-        return;
-      }
+      const data = await login(loginEmail, loginPassword);
       localStorage.setItem('authToken', data.accessToken);
       localStorage.setItem('authUser', JSON.stringify({ fullName: data.user.fullName, email: data.user.email }));
       setLoading(false);
       onAuthSuccess?.();
     } catch {
-      setError('Connection error. Please try again.');
+      setError('Invalid email or password.');
       setLoading(false);
     }
   };
@@ -54,24 +45,14 @@ export default function SignIn({ onAuthSuccess }: Props) {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName: signupName, email: signupEmail, password: signupPassword }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message || (data.errors?.FullName?.[0]) || 'Registration failed.');
-        setLoading(false);
-        return;
-      }
+      const data = await register(signupName, signupEmail, signupPassword);
       localStorage.setItem('authToken', data.accessToken);
       localStorage.setItem('authUser', JSON.stringify({ fullName: data.user.fullName, email: data.user.email }));
       setSuccess(`Welcome, ${data.user.fullName}!`);
       setLoading(false);
       setTimeout(() => onAuthSuccess?.(), 900);
     } catch {
-      setError('Connection error. Please try again.');
+      setError('Registration failed. Please try again.');
       setLoading(false);
     }
   };

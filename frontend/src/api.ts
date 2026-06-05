@@ -67,3 +67,19 @@ export async function resetAppState() {
     weeklyLogs: WeeklyLog[];
   }>('/reset', { method: 'POST' });
 }
+
+type AuthResponse = { accessToken: string; user: { fullName: string; email: string } };
+
+export async function login(email: string, password: string): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function register(fullName: string, email: string, password: string): Promise<AuthResponse> {
+  return apiFetch<AuthResponse>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ fullName, email, password }),
+  });
+}
